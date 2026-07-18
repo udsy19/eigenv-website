@@ -39,6 +39,11 @@ export default function Reveal({
     const el = ref.current;
     if (!el) return;
 
+    // Anything already on screen at mount is not something you scroll to — and
+    // animating it from opacity 0 delays Largest Contentful Paint by the whole
+    // tween. Measured: the hero's candour line was the LCP element at 2.7s.
+    if (el.getBoundingClientRect().top < window.innerHeight) return;
+
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
