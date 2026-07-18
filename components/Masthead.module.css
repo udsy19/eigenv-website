@@ -1,0 +1,91 @@
+/* Sits on the surround, above the plates — the label on the desk, not part of
+   any sheet. Sticky so the wordmark is never off-screen. */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: clamp(0.75rem, 2.5vw, 3rem);
+  padding: 0.875rem clamp(0.75rem, 1.6vw, 1.75rem) 0.75rem;
+  background: var(--surround);
+  border-bottom: 1px solid rgb(10 10 10 / 0.3);
+}
+
+/* The company name is the first thing read. Set as a word, not as metadata. */
+.wordmark {
+  font-family: var(--mono);
+  font-size: var(--wordmark);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem clamp(0.9rem, 2vw, 1.75rem);
+  /* min-width:0 lets it shrink instead of forcing the bar wider than the
+     viewport; margin-left:auto keeps it right-aligned beside the CTA */
+  min-width: 0;
+  margin-left: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.link {
+  /* 5.99:1 on the surround, where opacity 0.62 was a guess */
+  color: #5a5957;
+  padding: 0.35rem 0;
+  transition: color 0.25s cubic-bezier(0.33, 1, 0.68, 1);
+  white-space: nowrap;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--ink);
+}
+
+/* The primary action had no hover at all while the four secondary links did. */
+.cta {
+  flex: none;
+  border-bottom: 1px solid currentColor;
+  padding: 0.35rem 0 0.15em;
+  white-space: nowrap;
+  transition: border-bottom-width 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.cta:hover,
+.cta:focus-visible {
+  border-bottom-width: 2px;
+}
+
+/* Below the desktop width the section links become a horizontally scrollable
+   rail rather than being deleted. Hiding them left phone users with no way to
+   reach any section except by scrolling the whole page. */
+@media (max-width: 900px) {
+  .bar {
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .nav {
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.15rem;
+  }
+}
+
+/* below this the four section links would crowd the wordmark and the CTA off
+   the bar; the footer carries the same navigation in full */
+@media (max-width: 620px) {
+  .nav {
+    display: none;
+  }
+}

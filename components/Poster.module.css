@@ -1,0 +1,175 @@
+/* Ground/figure/accent come as a set, chosen by `tone`. Deriving them here
+   rather than passing three colour strings per plate means a contrast-safe
+   pairing cannot be assembled by accident.
+
+   `--muted` replaces opacity-based de-emphasis. Opacity on text is
+   unpredictable — nested opacities multiply silently, and the effective colour
+   depends on the ground — so every de-emphasised value is an explicit tint
+   measured against its own ground at >= 4.5:1.
+
+   `--accent-small` exists because sky-on-cobalt is 3.81:1: fine for display
+   type at AA-large, a failure for 11px labels. */
+.tonePaper {
+  --ground: var(--paper);
+  --figure: var(--ink);
+  --accent: var(--cobalt);
+  --accent-small: var(--cobalt);
+  --muted: #5a5957;            /* 5.99:1 on paper */
+  --rule: rgb(10 10 10 / 0.3);
+  --rule-quiet: rgb(10 10 10 / 0.15);
+}
+
+.toneCobalt {
+  --ground: var(--cobalt);
+  --figure: var(--paper);
+  --accent: var(--sky);        /* 3.81:1 — display sizes only */
+  --accent-small: #c6c9f0;     /* 5.25:1 on cobalt */
+  --muted: #c6c9f0;
+  --rule: rgb(239 237 234 / 0.45);
+  --rule-quiet: rgb(239 237 234 / 0.24);
+}
+
+.toneInk {
+  --ground: var(--ink);
+  --figure: var(--paper);
+  --accent: var(--sky);        /* 8.90:1 on ink — safe at any size */
+  --accent-small: var(--sky);
+  --muted: #9a9996;            /* 6.95:1 on ink */
+  --rule: rgb(239 237 234 / 0.42);
+  --rule-quiet: rgb(239 237 234 / 0.22);
+}
+
+/* A poster is a printed sheet sitting on a surround — margin on all four
+   sides, a faint edge so it reads as an object rather than a background. */
+.sheet {
+  position: relative;
+  margin: var(--sheet-margin);
+  min-height: calc(100svh - var(--sheet-margin) * 2 - var(--masthead-h, 0px));
+  --sheet-pad: clamp(1.5rem, 2.6vw, 2.75rem);
+  padding: var(--sheet-pad);
+  display: grid;
+  /* header · visual · words · stubs — visual before words visually, but the
+     heading comes first in the DOM for a correct outline (see Poster.tsx) */
+  grid-template-rows: auto 1fr auto auto;
+  gap: clamp(1.25rem, 2.4vw, 2.25rem);
+  /* clip rather than hide, with a margin, so focus outlines near the sheet
+     edge are not cropped */
+  overflow: clip;
+  overflow-clip-margin: 4px;
+  background: var(--ground);
+  color: var(--figure);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 34px rgb(0 0 0 / 0.09);
+}
+
+/* header: scientific caption columns left, metadata right */
+.head {
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 15rem)) 1fr;
+  gap: clamp(1rem, 2.4vw, 2rem);
+  align-items: start;
+}
+
+/* pinned to the last column regardless of how many captions precede it —
+   including none at all — so metadata always sits on the sheet's right edge */
+.headMeta {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+}
+
+/* The field bleeds to the sheet edge and takes the dominant share of the
+   sheet — it is the argument, the type is the caption to it. */
+.field {
+  grid-row: 2;
+  position: relative;
+  margin-inline: calc(var(--sheet-pad) * -1);
+  min-height: 42svh;
+}
+
+/* short plates — contact, and anything that would otherwise be mostly air */
+.half {
+  min-height: 0;
+}
+
+.half .field {
+  min-height: 14svh;
+}
+
+/* Plates whose middle band holds type size to their content. Forcing a full
+   viewport on a short plate is what produces dead air above and below the
+   material — the sheet should be as tall as it needs to be, no taller. */
+.content {
+  min-height: calc(58svh - var(--sheet-margin) * 2);
+}
+
+/* middle band holding type instead of a full-bleed visual */
+.slot {
+  grid-row: 2;
+  min-height: 0;
+  align-self: start;
+  width: 100%;
+}
+
+.foot {
+  grid-row: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1px solid var(--rule);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.stub {
+  padding: 0.5rem 0.875rem;
+  border-right: 1px solid var(--rule);
+  display: grid;
+  gap: 0.125rem;
+}
+
+.stub:last-child {
+  border-right: 0;
+}
+
+.stubLabel {
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .head {
+    grid-template-columns: 1fr;
+  }
+
+  .headMeta {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+  }
+}
+
+/* stubs are wider than the available track on phones, so stack them and
+   move the dividing rule from the inline edge to the block edge */
+@media (max-width: 560px) {
+  .foot {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .stub {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .stub:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* the heading block: sits below the visual, ranged to the bottom of the sheet */
+.words {
+  grid-row: 3;
+  display: grid;
+  gap: clamp(0.875rem, 1.6vw, 1.5rem);
+  align-content: end;
+}

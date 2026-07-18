@@ -1,0 +1,119 @@
+/* Explicit columns. With auto-fit the textarea shared a row with short inputs
+   and dragged their baselines apart. */
+.form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem) clamp(0.75rem, 2vw, 1.75rem);
+  align-items: start;
+  margin-top: 0.5rem;
+  max-width: 62rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+}
+
+/* Full width on its own row. The comment previously claimed this was fixed
+   while the textarea still shared row 2 with a short input, holding their
+   baselines 23px apart. */
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-size: 0.9375rem;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  /* matched box on all three, or the select's underline sits 2.2px above the
+     inputs it shares a row with */
+  padding: 0.5rem 0;
+  min-height: 2.3125rem;
+  border-radius: 0;
+  /* the native diagonal grabber is undesigned browser furniture */
+  resize: none;
+  field-sizing: content;
+}
+
+/* strip the UA chevron and vertical centring; draw our own */
+.field select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 1.4rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 0.45rem center, right 0.15rem center;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+}
+
+.field ::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* the dropdown list renders on the UA's own surface, not the plate's */
+.field select option {
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.submit {
+  grid-column: 1 / -1;
+  justify-self: start;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ground);
+  background: var(--figure);
+  /* was `currentColor`, which resolved to --ground — a border drawn in the
+     sheet's own background colour, i.e. invisible */
+  border: 1px solid var(--figure);
+  padding: 0.75rem 1.1rem;
+  cursor: pointer;
+  transition: opacity 0.25s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.submit:hover {
+  opacity: 0.82;
+}
+
+/* the input focus ring is --accent, which sits on the button's own fill —
+   the button needs the opposite */
+.submit:focus-visible {
+  outline: 2px solid var(--ground);
+  outline-offset: 3px;
+}
+
+.status:empty {
+  display: none;
+}
+
+.status {
+  margin-top: 0.9rem;
+  color: var(--accent);
+}
+
+@media (max-width: 700px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldWide {
+    grid-column: span 1;
+  }
+}
