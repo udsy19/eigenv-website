@@ -100,6 +100,7 @@ export default function Home() {
         <Poster
           id="what-we-do"
           labelledBy="plate-02"
+          layout="invert"
           tone="cobalt"
           bleed={false}
           captions={[
@@ -142,6 +143,7 @@ export default function Home() {
         <Poster
           id="who-we-work-with"
           labelledBy="plate-03"
+          align="right"
           tone="paper"
           bleed={false}
           meta={
@@ -175,6 +177,7 @@ export default function Home() {
         <Poster
           id="engagement"
           labelledBy="plate-04"
+          layout="invert" align="right"
           tone="ink"
           bleed={false}
           captions={[
@@ -216,6 +219,7 @@ export default function Home() {
         {/* 05 — a recent build */}
         <Poster
           labelledBy="plate-05"
+          layout="invert"
           tone="paper"
           bleed={false}
           captions={[
@@ -255,6 +259,7 @@ export default function Home() {
         <Poster
           id="we-buy-companies"
           labelledBy="plate-06"
+          layout="split"
           tone="cobalt"
           captions={[
             'We are owners, not a fund. No fund clock, no forced exit, no fixed horizon.',
@@ -314,6 +319,7 @@ export default function Home() {
         <Poster
           id="about"
           labelledBy="plate-07"
+          layout="split-reverse"
           tone="paper"
           meta={
             <>
@@ -374,6 +380,7 @@ export default function Home() {
         <Poster
           id="contact"
           labelledBy="plate-08"
+          layout="split"
           size="half"
           tone="cobalt"
           captions={[

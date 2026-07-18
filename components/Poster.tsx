@@ -10,6 +10,15 @@ const TONES = {
   ink: styles.toneInk,
 };
 
+/** How the sheet arranges its type against its visual. Varying this across the
+ *  series is what stops eight identical compositions reading as a template. */
+const LAYOUTS = {
+  stack: '',                       // visual above, type below
+  invert: styles.invert,           // type above, visual below
+  split: styles.split,             // type left, visual right
+  'split-reverse': styles.splitReverse,
+};
+
 type Props = {
   /** Chooses ground, figure, accent, muted and rule as a contrast-checked set.
    *  See Poster.module.css — assembling them by hand let sky-on-cobalt (3.81:1)
@@ -31,6 +40,9 @@ type Props = {
   stubs?: Stub[];
   /** 'half' relaxes the full-viewport minimum — for short plates like contact */
   size?: 'full' | 'half';
+  layout?: keyof typeof LAYOUTS;
+  /** which edge the type is ranged to */
+  align?: 'left' | 'right';
   /** anchor target for masthead and footer navigation */
   id?: string;
   /** id of this plate's heading, so the section becomes a named landmark */
@@ -46,6 +58,8 @@ export default function Poster({
   children,
   stubs,
   size = 'full',
+  layout = 'stack',
+  align = 'left',
   id,
   labelledBy,
 }: Props) {
@@ -58,6 +72,8 @@ export default function Poster({
       className={[
         styles.sheet,
         TONES[tone],
+        LAYOUTS[layout],
+        align === 'right' && styles.alignRight,
         size === 'half' && styles.half,
         !bleed && styles.content,
       ]

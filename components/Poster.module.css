@@ -48,8 +48,16 @@
   --sheet-pad: clamp(1.5rem, 2.6vw, 2.75rem);
   padding: var(--sheet-pad);
   display: grid;
-  /* header · visual · words · stubs — visual before words visually, but the
-     heading comes first in the DOM for a correct outline (see Poster.tsx) */
+  /* Grid areas, not row numbers, so the arrangement can vary per plate while
+     the DOM order stays fixed for the heading outline. Eight plates with the
+     same composition read as a template; the system is the grid, the type and
+     the palette — not one fixed arrangement. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    'head head'
+    'visual visual'
+    'words words'
+    'foot foot';
   grid-template-rows: auto 1fr auto auto;
   gap: clamp(1.25rem, 2.4vw, 2.25rem);
   /* clip rather than hide, with a margin, so focus outlines near the sheet
@@ -63,7 +71,7 @@
 
 /* header: scientific caption columns left, metadata right */
 .head {
-  grid-row: 1;
+  grid-area: head;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 15rem)) 1fr;
   gap: clamp(1rem, 2.4vw, 2rem);
@@ -81,7 +89,7 @@
 /* The field bleeds to the sheet edge and takes the dominant share of the
    sheet — it is the argument, the type is the caption to it. */
 .field {
-  grid-row: 2;
+  grid-area: visual;
   position: relative;
   margin-inline: calc(var(--sheet-pad) * -1);
   min-height: 42svh;
@@ -105,14 +113,14 @@
 
 /* middle band holding type instead of a full-bleed visual */
 .slot {
-  grid-row: 2;
+  grid-area: visual;
   min-height: 0;
   align-self: start;
   width: 100%;
 }
 
 .foot {
-  grid-row: 4;
+  grid-area: foot;
   display: flex;
   flex-wrap: wrap;
   gap: 0;
@@ -168,8 +176,101 @@
 
 /* the heading block: sits below the visual, ranged to the bottom of the sheet */
 .words {
-  grid-row: 3;
+  grid-area: words;
   display: grid;
   gap: clamp(0.875rem, 1.6vw, 1.5rem);
   align-content: end;
+}
+
+/* ---- arrangements ----------------------------------------------------- */
+
+/* type leads, the visual answers it */
+.invert {
+  grid-template-areas:
+    'head head'
+    'words words'
+    'visual visual'
+    'foot foot';
+  grid-template-rows: auto auto 1fr auto;
+}
+
+/* type and visual share the band, type first */
+.split {
+  grid-template-areas:
+    'head head'
+    'words visual'
+    'foot foot';
+  grid-template-rows: auto 1fr auto;
+  column-gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+/* the same, mirrored */
+.splitReverse {
+  grid-template-areas:
+    'head head'
+    'visual words'
+    'foot foot';
+  grid-template-rows: auto 1fr auto;
+  column-gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+.split .words,
+.splitReverse .words {
+  align-content: center;
+}
+
+/* In a split the visual no longer spans the sheet, so the full-bleed negative
+   margin has to apply on one side only. */
+.split .field {
+  margin-left: 0;
+}
+
+.splitReverse .field {
+  margin-right: 0;
+}
+
+/* ---- horizontal anchor ------------------------------------------------- */
+
+/* Scoped to the heading block only. Applied to the sheet it cascaded into the
+   card body copy and the captions, right-ranging paragraphs that must stay
+   left-ranged to be readable. */
+.alignRight .words {
+  justify-items: end;
+  text-align: right;
+}
+
+/* the optical bearing flips with the anchor, or the overhang lands on the
+   wrong edge */
+.alignRight .words :global(.display) {
+  margin-left: 0;
+  margin-right: -0.025em;
+}
+
+@media (max-width: 860px) {
+  .split,
+  .splitReverse {
+    grid-template-areas:
+      'head head'
+      'visual visual'
+      'words words'
+      'foot foot';
+    grid-template-rows: auto 1fr auto auto;
+  }
+
+  .split .field,
+  .splitReverse .field {
+    margin-inline: calc(var(--sheet-pad) * -1);
+  }
+
+  /* right-ranged display type on a phone crowds the thumb side and reads as a
+     mistake at narrow measures */
+  .alignRight .words {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .alignRight .words :global(.display) {
+    margin-left: -0.025em;
+    margin-right: 0;
+  }
 }
