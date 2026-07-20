@@ -64,11 +64,16 @@
   background: var(--paper);
 }
 
-.field input:focus-visible,
+/* On the underline-only fields a full outline box read as browser chrome. The
+   focus indicator is the underline brightening to the accent instead — the
+   box-shadow sits under the 1px border so there is no layout shift, and it
+   clears the 3:1 non-text contrast bar. Checkboxes are excluded so they keep
+   the global outline ring. */
+.field input:not([type='checkbox']):focus-visible,
 .field select:focus-visible,
 .field textarea:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: none;
+  box-shadow: 0 1px 0 0 var(--accent-small);
 }
 
 .submit {
