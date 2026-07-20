@@ -9,8 +9,8 @@ import styles from './LeadForm.module.css';
  * The enquiry form. Posts to /api/enquiry, which records the enquiry (and any
  * PDF) in Notion and sends a branded confirmation email via Resend.
  *
- * If the backend is not configured it replies { fallback: true } and the form
- * composes a mailto instead, so an enquiry is never silently lost.
+ * Submit only ever posts to the API — it never opens a mail draft. On failure
+ * it shows an error and points to the address link below the form.
  */
 
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
@@ -58,38 +58,17 @@ export default function LeadForm() {
         formEl.reset();
         return;
       }
-      if (result.fallback) {
-        composeMail(data);
-        return;
-      }
-      fail(result.error ?? 'Something went wrong. Please email us directly.');
+      // Never open a mail draft. On any failure, show an error and point to the
+      // address (which is a link below the form the visitor can choose to use).
+      fail(result.error ?? `We could not submit that just now. Please email us at ${CONTACT_EMAIL}.`);
     } catch {
-      composeMail(data, 'We could not submit that automatically. Opening your mail client instead.');
+      fail(`We could not submit that just now. Please email us at ${CONTACT_EMAIL}.`);
     }
   }
 
   function fail(text: string) {
     setState('error');
     setMessage(text);
-  }
-
-  function composeMail(data: FormData, note?: string) {
-    const get = (key: string) => String(data.get(key) ?? '').trim();
-    const looking = LOOKING_TO.filter((o) => data.get(o.value)).map((o) => o.label);
-    const body = [
-      `Name: ${get('name')}`,
-      `Email: ${get('email')}`,
-      `Role: ${get('role') || 'n/a'}`,
-      `Company: ${get('company') || 'n/a'}`,
-      `Timing: ${get('timing') || 'ASAP'}`,
-      `Looking to: ${looking.join(', ') || 'n/a'}`,
-      `Link: ${get('link') || 'n/a'}`,
-    ].join('\n');
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-      `Enquiry from ${get('name')}`
-    )}&body=${encodeURIComponent(body)}`;
-    setState('done');
-    setMessage(note ?? `Opening your mail client. If nothing happens, write to ${CONTACT_EMAIL}.`);
   }
 
   return (
