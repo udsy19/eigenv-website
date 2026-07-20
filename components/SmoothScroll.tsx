@@ -24,6 +24,9 @@ export default function SmoothScroll() {
     if (reduced || coarse) return;
 
     const lenis = new Lenis();
+    // exposed so components (the hero's email capture) can scroll through Lenis
+    // rather than fighting it with a native window.scrollTo
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
 
     lenis.on('scroll', ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
@@ -60,6 +63,7 @@ export default function SmoothScroll() {
     return () => {
       document.removeEventListener('click', onClick);
       gsap.ticker.remove(tick);
+      delete (window as unknown as { __lenis?: Lenis }).__lenis;
       lenis.destroy();
     };
   }, []);

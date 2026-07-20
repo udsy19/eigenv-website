@@ -1,6 +1,7 @@
-import ContactForm from '@/components/ContactForm';
+import EngageHero from '@/components/EngageHero';
 import Draw from '@/components/Draw';
 import Footer from '@/components/Footer';
+import LeadForm from '@/components/LeadForm';
 import HeatField from '@/components/HeatField';
 import Masthead from '@/components/Masthead';
 import NodeField from '@/components/NodeField';
@@ -54,8 +55,6 @@ const CASE_STEPS = [
 
 const PRINCIPLES = [
   { name: 'Owners and operators', body: 'For the long run, not the quarter.' },
-  { name: 'With you, not to you', body: 'You keep the controls.' },
-  { name: 'Options over lock-in', body: 'We would rather earn the next piece of work.' },
 ];
 
 export default function Home() {
@@ -84,16 +83,7 @@ export default function Home() {
           }
           visual={<HeatField decayOnScroll={0.55} />}
         >
-          <h1 id="plate-01" className={`display ${styles.headline}`}>
-            We buy companies.
-          </h1>
-          <p className={styles.lede}>
-            And we build alongside the people who run them.
-          </p>
-          <p className={`meta ${styles.stage}`}>
-            The operating work is live today. Our first acquisitions are in
-            search — and we say so plainly.
-          </p>
+          <EngageHero headingId="plate-01" />
         </Poster>
 
         {/* 02 — what we do */}
@@ -185,7 +175,9 @@ export default function Home() {
           ]}
           meta={
             <>
-              INSIDE AN ENGAGEMENT
+              INSIDE A CONSULTING
+              <br />
+              ENGAGEMENT
               <br />
               PLATE 04 / 08
             </>
@@ -211,8 +203,7 @@ export default function Home() {
           ]}
         >
           <h2 id="plate-04" className={`display ${styles.quiet}`}>
-            We don&rsquo;t advise from the sidelines.{' '}
-            <span className={styles.accent}>We build it and run it.</span>
+            We don&rsquo;t advise from the sidelines.
           </h2>
         </Poster>
 
@@ -398,7 +389,7 @@ export default function Home() {
           <h2 id="plate-08" className={`display ${styles.quiet}`}>
             Tell us what you&rsquo;re building.
           </h2>
-          <ContactForm />
+          <LeadForm />
           <p className={`meta ${styles.direct}`}>
             Or write directly —{' '}
             <a className={styles.mailto} href={`mailto:${CONTACT_EMAIL}`}>

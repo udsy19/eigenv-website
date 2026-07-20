@@ -117,3 +117,34 @@
     grid-column: span 1;
   }
 }
+
+/* checkbox group replaces the old free-text "what you need" */
+.choices {
+  grid-column: 1 / -1;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.choices legend {
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1.5rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  min-height: 1.5rem;
+}
+
+.check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--figure);
+  cursor: pointer;
+}
