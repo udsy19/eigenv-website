@@ -50,6 +50,7 @@ export async function POST(request: Request) {
   const campaign = String(payload.campaign ?? '');
   const screen = String(payload.screen ?? '');
   const language = String(payload.language ?? h.get('accept-language')?.split(',')[0] ?? '');
+  const visitorId = String(payload.visitorId ?? '');
 
   // optional B2B company identification from IP (org-level, not a person)
   let company = '';
@@ -83,6 +84,7 @@ export async function POST(request: Request) {
     Language: text(language),
     Screen: text(screen),
     Timezone: text(tz),
+    'Visitor ID': text(visitorId),
   };
 
   try {

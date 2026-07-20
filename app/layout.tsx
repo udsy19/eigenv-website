@@ -3,6 +3,7 @@ import { Instrument_Serif, Geist_Mono, Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import Track from '@/components/Track';
+import Consent from '@/components/Consent';
 import { CONTACT_EMAIL } from '@/content';
 import './globals.css';
 
@@ -90,6 +91,7 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
         <Track />
+        <Consent />
       </body>
     </html>
   );

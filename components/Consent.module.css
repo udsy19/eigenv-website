@@ -1,0 +1,75 @@
+/* A plate-styled sheet pinned to the bottom corner, not a full-width wall. */
+.bar {
+  position: fixed;
+  left: var(--sheet-margin, 1rem);
+  bottom: var(--sheet-margin, 1rem);
+  z-index: 40;
+  width: min(30rem, calc(100vw - 2rem));
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid rgb(10 10 10 / 0.16);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 16px 40px rgb(0 0 0 / 0.16);
+}
+
+.copy {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #5a5957;
+}
+
+.copy a {
+  color: var(--cobalt);
+  border-bottom: 1px solid currentColor;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  transition: opacity 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.btn:hover {
+  opacity: 0.82;
+}
+
+.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bar {
+    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}

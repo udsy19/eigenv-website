@@ -45,11 +45,14 @@ export default function Draw({
         const ruleEls = rules ? el.querySelectorAll<HTMLElement>(rules) : [];
         const barEls = bars ? el.querySelectorAll<HTMLElement>(bars) : [];
 
+        // Reveal vertically, not as a horizontal wipe. A left-origin scaleX on
+        // every card and rule made the whole page look like it was sliding in
+        // from the left; a fade-and-rise reads calmer and has no direction.
         if (ruleEls.length) {
           gsap.from(ruleEls, {
-            scaleX: 0,
-            transformOrigin: 'left center',
-            duration: 0.85,
+            opacity: 0,
+            y: 14,
+            duration: 0.7,
             ease: 'expo.out',
             stagger,
             scrollTrigger: { trigger: el, start: 'top 82%', once: true },
@@ -58,12 +61,11 @@ export default function Draw({
 
         if (barEls.length) {
           gsap.from(barEls, {
-            scaleX: 0,
-            transformOrigin: 'left center',
-            duration: 1.1,
-            ease: 'expo.out',
-            // sequential, not simultaneous: the phases happen in order
-            stagger: 0.14,
+            opacity: 0,
+            y: 8,
+            duration: 0.6,
+            ease: 'power2.out',
+            stagger: 0.12,
             scrollTrigger: { trigger: el, start: 'top 78%', once: true },
           });
         }

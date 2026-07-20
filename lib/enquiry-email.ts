@@ -2,14 +2,18 @@
  * Every email the site sends is built to read as one of its plates.
  *
  * Email clients don't reliably load web fonts, so this uses the same fallback
- * families the site declares — Georgia for the serif display, a monospace stack
- * for the metadata — plus the exact five-token palette. Table layout and inline
- * styles because that is what email clients render consistently.
+ * families the site declares. It also can't run canvas or JS, so the site's
+ * pixel field is reproduced as a table of coloured cells (bulletproof, no
+ * images) rather than the live simulation.
+ *
+ * House style for emails: no em dashes.
  */
 
 const PAPER = '#efedea';
 const INK = '#0a0a0a';
 const COBALT = '#1e2edc';
+const SKY = '#7fb2e8';
+const SIGNAL = '#e0492a';
 const SURROUND = '#e5e5e5';
 const MUTED = '#5a5957';
 
@@ -25,9 +29,47 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/* ---- pixel field, as a table of coloured cells ---------------------------
+ * The same idea as the hero: a field dense at the left that dissolves to the
+ * paper ground at the right, banded into hard palette colours. Deterministic
+ * per (x,y) so it renders identically in every client. */
+
+const COLS = 60;
+const ROWS = 6;
+const CELL = 10; // px
+
+function hash(x: number, y: number): number {
+  const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+function cellColor(x: number, y: number): string | null {
+  // density falls from left (1) to right (0), with vertical softening
+  const gradient = 1 - x / COLS - (y / ROWS) * 0.15;
+  const value = gradient + (hash(x, y) - 0.5) * 0.5;
+  if (value < 0.18) return null; // paper shows through
+  if (value < 0.4) return SKY;
+  if (value < 0.82) return COBALT;
+  return SIGNAL; // hot cores, rare
+}
+
+function pixelBand(): string {
+  let rows = '';
+  for (let y = 0; y < ROWS; y++) {
+    let cells = '';
+    for (let x = 0; x < COLS; x++) {
+      const color = cellColor(x, y);
+      const bg = color ? ` bgcolor="${color}"` : '';
+      cells += `<td width="${CELL}" height="${CELL}"${bg} style="width:${CELL}px; height:${CELL}px; font-size:0; line-height:0;">&nbsp;</td>`;
+    }
+    rows += `<tr>${cells}</tr>`;
+  }
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${COLS * CELL}" style="border-collapse:collapse; width:100%; max-width:${COLS * CELL}px; table-layout:fixed;" aria-hidden="true">${rows}</table>`;
+}
+
 /**
- * The shared sheet: masthead, cobalt eyebrow, serif heading, a body, a cobalt
- * rule, and the mono footer. Both emails are this shell with different bodies.
+ * The shared sheet: masthead, pixel band, cobalt eyebrow, serif heading, a
+ * body, a cobalt rule, and the mono footer.
  */
 function shell(opts: {
   preheader: string;
@@ -61,8 +103,10 @@ function shell(opts: {
       </td>
     </tr>
 
+    <tr><td style="font-size:0; line-height:0;">${pixelBand()}</td></tr>
+
     <tr>
-      <td style="padding:44px 32px 8px;">
+      <td style="padding:40px 32px 8px;">
         <div style="font-family:${MONO}; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:${COBALT}; margin-bottom:20px;">${escapeHtml(opts.eyebrow)} &middot; ${year}</div>
         <h1 style="margin:0; font-family:${SERIF}; font-weight:normal; font-size:40px; line-height:1.04; letter-spacing:-0.02em; color:${INK};">${opts.heading}</h1>
       </td>
@@ -102,11 +146,11 @@ function detailRow(label: string, value: string, isLink = false): string {
 export function enquiryConfirmationEmail(name: string) {
   const first = escapeHtml(name.trim().split(/\s+/)[0] || 'there');
   const bodyHtml = `
-    <p style="margin:0 0 16px; font-family:${SANS}; font-size:16px; line-height:1.6; color:${INK};">We have your note and the details you shared. Someone will read it properly — not a bot — and be in touch soon.</p>
+    <p style="margin:0 0 16px; font-family:${SANS}; font-size:16px; line-height:1.6; color:${INK};">We have your note and the details you shared. Someone will read it properly, not a bot, and be in touch soon.</p>
     <p style="margin:0; font-family:${SANS}; font-size:16px; line-height:1.6; color:${MUTED};">If anything changed or you want to add to it, just reply to this email. It reaches us directly.</p>`;
 
   return {
-    subject: 'Thanks for reaching out — EIGENV',
+    subject: 'Thanks for reaching out to EIGENV',
     html: shell({
       preheader: 'We have your note. We will be in touch soon.',
       tag: 'CONFIRMATION',
@@ -119,7 +163,7 @@ export function enquiryConfirmationEmail(name: string) {
       '',
       'We have your note and the details you shared. We will be in touch soon.',
       '',
-      'EIGENV — San Francisco, California',
+      'EIGENV, San Francisco, California',
       'ada@eigenv.ai',
     ].join('\n'),
   };
@@ -156,23 +200,23 @@ export function enquiryNotificationEmail(d: EnquiryDetails) {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`;
 
   return {
-    subject: `New enquiry — ${d.name}`,
+    subject: `New enquiry: ${d.name}`,
     html: shell({
-      preheader: `${d.name}${d.company ? ` · ${d.company}` : ''} — ${d.lookingTo.join(', ') || 'enquiry'}`,
+      preheader: `${d.name}${d.company ? ` at ${d.company}` : ''}: ${d.lookingTo.join(', ') || 'enquiry'}`,
       tag: 'ENQUIRY',
       eyebrow: 'New enquiry',
       heading: escapeHtml(d.name),
       bodyHtml,
     }),
     text: [
-      `New enquiry — ${d.name}`,
+      `New enquiry: ${d.name}`,
       '',
       `Email: ${d.email}`,
-      `Company: ${d.company ?? '—'}`,
-      `Role: ${d.role ?? '—'}`,
+      `Company: ${d.company ?? 'n/a'}`,
+      `Role: ${d.role ?? 'n/a'}`,
       `Timing: ${d.timing}`,
-      `Looking to: ${d.lookingTo.join(', ') || '—'}`,
-      `Link: ${d.link ?? '—'}`,
+      `Looking to: ${d.lookingTo.join(', ') || 'n/a'}`,
+      `Link: ${d.link ?? 'n/a'}`,
       `Attachment: ${d.attachmentName ?? 'none'}`,
       `Notion: ${d.storedInNotion ? 'recorded' : 'not recorded'}`,
     ].join('\n'),

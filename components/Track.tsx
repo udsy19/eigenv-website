@@ -1,15 +1,21 @@
 'use client';
 
 import { useEffect } from 'react';
+import { getConsent, getVid } from '@/lib/consent';
 
 /**
- * Sends one cookieless analytics beacon per page load. Collects only what the
- * browser already exposes to any page — no persistent id, no fingerprint. The
- * server adds coarse geo from edge headers. Fire-and-forget; failures are
- * silent and never affect the page.
+ * One cookieless analytics beacon per page load. Collects only what the browser
+ * exposes to any page. The server adds coarse geo from edge headers.
+ *
+ * Consent-aware: an explicit "necessary only" suppresses it entirely; "accept
+ * analytics" attaches the first-party visitor id so returning visits link up;
+ * undecided sends an anonymous, id-less beacon. Fire-and-forget.
  */
 export default function Track() {
   useEffect(() => {
+    const consent = getConsent();
+    if (consent === 'necessary') return; // opted out
+
     const params = new URLSearchParams(window.location.search);
     const utm = ['utm_source', 'utm_medium', 'utm_campaign']
       .map((key) => params.get(key))
@@ -23,9 +29,9 @@ export default function Track() {
       screen: `${window.screen.width}×${window.screen.height}`,
       language: navigator.language,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      visitorId: consent === 'analytics' ? getVid() : undefined,
     });
 
-    // sendBeacon survives the page unloading; fetch is the fallback
     if (navigator.sendBeacon) {
       navigator.sendBeacon('/api/track', new Blob([body], { type: 'application/json' }));
     } else {

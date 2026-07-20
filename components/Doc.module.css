@@ -1,0 +1,59 @@
+.page {
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100svh;
+}
+
+.doc {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) var(--gutter) clamp(3rem, 8vw, 6rem);
+}
+
+.updated {
+  color: #5a5957;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.body {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+.body :global(h2) {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cobalt);
+  margin: 2.5rem 0 0.75rem;
+}
+
+.body :global(p) {
+  margin-bottom: 1rem;
+  max-width: 62ch;
+}
+
+.body :global(ul) {
+  margin: 0 0 1rem 1.1rem;
+  list-style: disc;
+}
+
+.body :global(li) {
+  margin-bottom: 0.4rem;
+  max-width: 60ch;
+}
+
+.body :global(a) {
+  color: var(--cobalt);
+  border-bottom: 1px solid currentColor;
+}
+
+.body :global(strong) {
+  font-weight: 600;
+}
