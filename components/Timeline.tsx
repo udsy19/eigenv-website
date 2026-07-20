@@ -34,7 +34,7 @@ export default function Timeline() {
         ))}
       </div>
       <p className={`meta ${styles.total}`}>
-        {TOTAL} weeks — with your leadership and team throughout
+        {TOTAL} weeks, with your leadership and team throughout
       </p>
     </Draw>
   );

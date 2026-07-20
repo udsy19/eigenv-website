@@ -106,7 +106,7 @@ confirmation email will reach visitors.
 
 ## Visit analytics (cookieless)
 
-A beacon (`components/Track.tsx`) fires once per page load to `app/api/track`,
+A beacon (`components/Track.tsx`) fires once per page load to `app/api/v`,
 which records the visit in a Notion "Visitors" database. It is **cookieless**:
 no persistent identifier, no fingerprint, no cross-site or credit enrichment,
 and the raw IP is never stored. Disclosed in the footer.

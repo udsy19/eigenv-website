@@ -33,9 +33,9 @@ export default function Track() {
     });
 
     if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/track', new Blob([body], { type: 'application/json' }));
+      navigator.sendBeacon('/api/v', new Blob([body], { type: 'application/json' }));
     } else {
-      fetch('/api/track', { method: 'POST', body, keepalive: true }).catch(() => {});
+      fetch('/api/v', { method: 'POST', body, keepalive: true }).catch(() => {});
     }
   }, []);
 

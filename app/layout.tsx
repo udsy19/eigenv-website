@@ -27,12 +27,12 @@ const body = Inter({
 });
 
 const SITE = 'https://eigenv.ai';
-const TITLE = 'EIGENV — We build and operate companies';
+const TITLE = 'EIGENV · We build and operate companies';
 /* Present tense on the operating work, future on acquisitions. The previous
    description said "acquires and operates", which claimed deals the site
    itself says are still in search — and it is the most-syndicated string here. */
 const DESCRIPTION =
-  'EIGENV builds and operates the hard parts of a company — go-to-market, product, leadership — alongside founders, investors, and owners. Our first acquisitions are in search.';
+  'EIGENV builds and operates the hard parts of a company: go-to-market, product, and leadership, alongside founders, investors, and owners. Our first acquisitions are in search.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

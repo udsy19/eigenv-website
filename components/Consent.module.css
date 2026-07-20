@@ -1,7 +1,7 @@
 /* A plate-styled sheet pinned to the bottom corner, not a full-width wall. */
 .bar {
   position: fixed;
-  left: var(--sheet-margin, 1rem);
+  right: var(--sheet-margin, 1rem);
   bottom: var(--sheet-margin, 1rem);
   z-index: 40;
   width: min(30rem, calc(100vw - 2rem));

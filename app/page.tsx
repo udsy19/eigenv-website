@@ -15,7 +15,7 @@ import styles from './page.module.css';
 const ENGAGEMENT = [
   {
     group: 'Sales process',
-    item: 'Pipeline stages, qualification, milestones, and handoffs — documented.',
+    item: 'Pipeline stages, qualification, milestones, and handoffs, documented.',
   },
   {
     group: 'Strategy',
@@ -214,7 +214,7 @@ export default function Home() {
           tone="paper"
           bleed={false}
           captions={[
-            'Deliberately anonymous — no client names, no invented numbers.',
+            'Deliberately anonymous. No client names, no invented numbers.',
           ]}
           meta={
             <>
@@ -298,7 +298,7 @@ export default function Home() {
             <section>
               <h3 className={`meta ${styles.buyHeading}`}>Conduct</h3>
               <p className={styles.buyText}>
-                When we are a buyer, we say so on day one — never the adviser hat
+                When we are a buyer, we say so on day one. Never the adviser hat
                 and the buyer hat at once. Size and sector ranges follow once the
                 first deals set them.
               </p>
@@ -338,8 +338,8 @@ export default function Home() {
             <section>
               <h3 className={`meta ${styles.buyHeading}`}>The name</h3>
               <p className={styles.buyText}>
-                An eigenvector is the direction a transformation does not turn —
-                it only scales it. Everything around it changes; the direction
+                An eigenvector is the direction a transformation does not turn.
+                It only scales it. Everything around it changes; the direction
                 holds.
               </p>
             </section>
@@ -391,7 +391,7 @@ export default function Home() {
           </h2>
           <LeadForm />
           <p className={`meta ${styles.direct}`}>
-            Or write directly —{' '}
+            Or write directly at{' '}
             <a className={styles.mailto} href={`mailto:${CONTACT_EMAIL}`}>
               {CONTACT_EMAIL}
             </a>

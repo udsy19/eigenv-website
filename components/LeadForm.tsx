@@ -54,7 +54,7 @@ export default function LeadForm() {
 
       if (res.ok && result.ok) {
         setState('done');
-        setMessage('Thank you — we have it. Check your inbox for a confirmation.');
+        setMessage('Thank you. We have it, and a confirmation is on its way to your inbox.');
         formEl.reset();
         return;
       }
@@ -64,7 +64,7 @@ export default function LeadForm() {
       }
       fail(result.error ?? 'Something went wrong. Please email us directly.');
     } catch {
-      composeMail(data, 'We could not submit that automatically — opening your mail client instead.');
+      composeMail(data, 'We could not submit that automatically. Opening your mail client instead.');
     }
   }
 
@@ -79,11 +79,11 @@ export default function LeadForm() {
     const body = [
       `Name: ${get('name')}`,
       `Email: ${get('email')}`,
-      `Role: ${get('role') || '—'}`,
-      `Company: ${get('company') || '—'}`,
+      `Role: ${get('role') || 'n/a'}`,
+      `Company: ${get('company') || 'n/a'}`,
       `Timing: ${get('timing') || 'ASAP'}`,
-      `Looking to: ${looking.join(', ') || '—'}`,
-      `Link: ${get('link') || '—'}`,
+      `Looking to: ${looking.join(', ') || 'n/a'}`,
+      `Link: ${get('link') || 'n/a'}`,
     ].join('\n');
     window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
       `Enquiry from ${get('name')}`

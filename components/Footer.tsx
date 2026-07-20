@@ -15,8 +15,8 @@ export default function Footer() {
         <div>
           <p className={styles.wordmark}>EIGENV</p>
           <p className={styles.tagline}>
-            We build and operate companies — for the long term, and alongside
-            the people who run them.
+            We build and operate companies for the long term, alongside the
+            people who run them.
           </p>
         </div>
 
