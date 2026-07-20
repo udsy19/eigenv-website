@@ -74,27 +74,32 @@ and activate automatically on deploy:
 Set the domain in three places if it is not `eigenv.ai`: `metadataBase` and the
 JSON-LD in `app/layout.tsx`, `app/robots.ts`, and `app/sitemap.ts`.
 
-## Backend (Supabase) — optional
+## Backend (Notion + Resend)
 
-Without it, the contact form composes a `mailto`. With it, enquiries and any PDF
-are written straight to your database the moment they submit, and the team gets
-an email alert.
+Form submissions POST to `app/api/enquiry`, which records the enquiry (and any
+PDF) in Notion and sends the visitor a branded confirmation email via Resend.
+Without these env vars the form falls back to composing a `mailto`, so nothing
+is ever silently lost.
 
-1. Create a project at supabase.com.
-2. Run `supabase/migrations/0001_enquiries.sql` (SQL editor, or `supabase db push`).
-   It creates the `enquiries` table and a private `enquiry-attachments` bucket,
-   both locked down with RLS — the public anon key can only insert and upload,
-   never read.
-3. In Vercel, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   (Project settings → API). These are public by design.
-4. Email alerts — deploy the edge function and wire a webhook:
-   - `supabase functions deploy notify-enquiry --no-verify-jwt`
-   - set its secrets: `RESEND_API_KEY`, `ALERT_TO=ada@eigenv.ai`, `ALERT_FROM`
-     (a verified sender), `WEBHOOK_SECRET`
-   - Database → Webhooks → new webhook on `enquiries` insert → POST to the
-     function URL, adding header `x-webhook-secret: <WEBHOOK_SECRET>`
+Set in Vercel (Project settings → Environment Variables):
 
-**Does Supabase send the alert?** Yes — a Database Webhook fires on each insert
-and calls the edge function, which emails the enquiry (with a link to the PDF)
-via Resend. Supabase does not send email itself; the function does, through a
-mail provider.
+| Var | What |
+|---|---|
+| `NOTION_TOKEN` | Notion internal integration secret |
+| `NOTION_DATABASE_ID` | the target database, shared with the integration |
+| `RESEND_API_KEY` | Resend API key |
+| `RESEND_FROM` | a sender on a Resend-verified domain, e.g. `EIGENV <ada@eigenv.ai>` |
+| `ALERT_TO` | optional — internal copy of each enquiry |
+
+**Notion database** needs these properties: `Name` (title), `Email` (email),
+`Role` (text), `Company` (text), `Timing` (text), `Looking to` (multi-select),
+`Link` (url), `Attachment` (files). Share the database with the integration.
+
+**Resend** only delivers to arbitrary recipients from a **verified domain** — in
+test mode (`onboarding@resend.dev`) it reaches only your own account address. So
+verify `eigenv.ai` in Resend and set `RESEND_FROM` to a sender on it before the
+confirmation email will reach visitors.
+
+**Company-email gate**: the form rejects free/personal mailbox providers
+(Gmail, Outlook, iCloud, …) both client-side and in the API route. The list is
+`lib/company-email.ts`.

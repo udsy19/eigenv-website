@@ -2,91 +2,69 @@
 
 import { useState } from 'react';
 import { CONTACT_EMAIL, LOOKING_TO } from '@/content';
-import { getSupabase, ENQUIRY_BUCKET } from '@/lib/supabase';
+import { COMPANY_EMAIL_MESSAGE, isCompanyEmail } from '@/lib/company-email';
 import styles from './LeadForm.module.css';
 
 /**
- * The enquiry form.
+ * The enquiry form. Posts to /api/enquiry, which records the enquiry (and any
+ * PDF) in Notion and sends a branded confirmation email via Resend.
  *
- * If Supabase is configured, the enquiry is written to the `enquiries` table
- * and any PDF is uploaded to storage — so the data reaches us the moment it is
- * submitted, rather than waiting on an email round-trip. A database webhook
- * then emails the team (see supabase/functions/notify-enquiry).
- *
- * If Supabase is not configured, it falls back to composing a mailto, so the
- * form always does something useful.
+ * If the backend is not configured it replies { fallback: true } and the form
+ * composes a mailto instead, so an enquiry is never silently lost.
  */
 
-const MAX_PDF_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_PDF_BYTES = 10 * 1024 * 1024;
 
 type State = 'idle' | 'sending' | 'done' | 'error';
 
 export default function LeadForm() {
   const [state, setState] = useState<State>('idle');
   const [message, setMessage] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
-    const get = (key: string) => String(data.get(key) ?? '').trim();
+    const formEl = event.currentTarget;
+    const data = new FormData(formEl);
+    const email = String(data.get('email') ?? '').trim();
 
-    const looking = LOOKING_TO.filter((o) => data.get(o.value)).map((o) => o.label);
-    const file = data.get('attachment');
-    const pdf = file instanceof File && file.size > 0 ? file : null;
+    if (!isCompanyEmail(email)) {
+      setEmailError(COMPANY_EMAIL_MESSAGE);
+      formEl.querySelector<HTMLInputElement>('input[name="email"]')?.focus();
+      return;
+    }
+    setEmailError('');
 
-    if (pdf) {
-      if (pdf.type !== 'application/pdf') {
+    const attachment = data.get('attachment');
+    if (attachment instanceof File && attachment.size > 0) {
+      if (attachment.type !== 'application/pdf') {
         fail('That attachment is not a PDF. Please attach a PDF, or share a link.');
         return;
       }
-      if (pdf.size > MAX_PDF_BYTES) {
+      if (attachment.size > MAX_PDF_BYTES) {
         fail('That PDF is over 10 MB. Please share a link to it instead.');
         return;
       }
     }
 
-    const enquiry = {
-      name: get('name'),
-      email: get('email'),
-      role: get('role') || null,
-      company: get('company') || null,
-      timing: get('timing') || 'ASAP',
-      looking_to: looking,
-      link: get('link') || null,
-    };
-
-    const supabase = getSupabase();
-
-    if (!supabase) {
-      composeMail(enquiry, pdf);
-      return;
-    }
-
     setState('sending');
     try {
-      let attachmentPath: string | null = null;
-      if (pdf) {
-        // random, sanitised name — never trust the client filename in a path
-        const safe = pdf.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80);
-        attachmentPath = `${crypto.randomUUID()}-${safe}`;
-        const upload = await supabase.storage
-          .from(ENQUIRY_BUCKET)
-          .upload(attachmentPath, pdf, { contentType: 'application/pdf' });
-        if (upload.error) throw upload.error;
+      const res = await fetch('/api/enquiry', { method: 'POST', body: data });
+      const result = await res.json().catch(() => ({}));
+
+      if (res.ok && result.ok) {
+        setState('done');
+        setMessage('Thank you — we have it. Check your inbox for a confirmation.');
+        formEl.reset();
+        return;
       }
-
-      const insert = await supabase
-        .from('enquiries')
-        .insert({ ...enquiry, attachment_path: attachmentPath });
-      if (insert.error) throw insert.error;
-
-      setState('done');
-      setMessage('Thank you — we have it. We will reply from ada@eigenv.ai.');
-      form.reset();
+      if (result.fallback) {
+        composeMail(data);
+        return;
+      }
+      fail(result.error ?? 'Something went wrong. Please email us directly.');
     } catch {
-      // never surface a raw backend error to the visitor; give them a way through
-      composeMail(enquiry, pdf, 'We could not submit that automatically — opening your mail client instead.');
+      composeMail(data, 'We could not submit that automatically — opening your mail client instead.');
     }
   }
 
@@ -95,40 +73,43 @@ export default function LeadForm() {
     setMessage(text);
   }
 
-  function composeMail(
-    enquiry: Record<string, unknown>,
-    pdf: File | null,
-    note?: string
-  ) {
+  function composeMail(data: FormData, note?: string) {
+    const get = (key: string) => String(data.get(key) ?? '').trim();
+    const looking = LOOKING_TO.filter((o) => data.get(o.value)).map((o) => o.label);
     const body = [
-      `Name: ${enquiry.name}`,
-      `Email: ${enquiry.email}`,
-      `Role: ${enquiry.role ?? '—'}`,
-      `Company: ${enquiry.company ?? '—'}`,
-      `Timing: ${enquiry.timing}`,
-      `Looking to: ${(enquiry.looking_to as string[]).join(', ') || '—'}`,
-      `Link: ${enquiry.link ?? '—'}`,
-      pdf ? `\n(You attached ${pdf.name} — please attach it to this email.)` : '',
+      `Name: ${get('name')}`,
+      `Email: ${get('email')}`,
+      `Role: ${get('role') || '—'}`,
+      `Company: ${get('company') || '—'}`,
+      `Timing: ${get('timing') || 'ASAP'}`,
+      `Looking to: ${looking.join(', ') || '—'}`,
+      `Link: ${get('link') || '—'}`,
     ].join('\n');
     window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-      `Enquiry from ${enquiry.name}`
+      `Enquiry from ${get('name')}`
     )}&body=${encodeURIComponent(body)}`;
     setState('done');
-    setMessage(
-      note ?? `Opening your mail client. If nothing happens, write to ${CONTACT_EMAIL}.`
-    );
+    setMessage(note ?? `Opening your mail client. If nothing happens, write to ${CONTACT_EMAIL}.`);
   }
 
   return (
     <>
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <label className={styles.field}>
           <span className="meta">Name</span>
           <input type="text" name="name" autoComplete="name" required />
         </label>
         <label className={styles.field}>
-          <span className="meta">Email</span>
-          <input type="email" name="email" autoComplete="email" required />
+          <span className="meta">Company email</span>
+          <input
+            type="email"
+            name="email"
+            autoComplete="email"
+            aria-invalid={Boolean(emailError)}
+            aria-describedby={emailError ? 'email-error' : undefined}
+            onInput={() => emailError && setEmailError('')}
+            required
+          />
         </label>
         <label className={styles.field}>
           <span className="meta">Role</span>
@@ -172,6 +153,12 @@ export default function LeadForm() {
           <span className="meta">Or attach a PDF</span>
           <input type="file" name="attachment" accept="application/pdf" />
         </label>
+
+        {emailError && (
+          <p id="email-error" className={`meta ${styles.error}`}>
+            {emailError}
+          </p>
+        )}
 
         <button type="submit" className={styles.submit} disabled={state === 'sending'}>
           {state === 'sending' ? 'Sending…' : 'Send →'}

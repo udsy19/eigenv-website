@@ -1,17 +1,13 @@
 import type { NextConfig } from 'next';
 
-const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
-  : '';
-
 /**
  * Content Security Policy.
  *
  * `unsafe-inline` on script/style is required for Next's hydration bootstrap and
  * injected styles on a statically prerendered route (there is no nonce without a
  * dynamic server). Everything else is locked to self plus the two origins the
- * page legitimately talks to: Supabase (form submit + upload) and Vercel's
- * analytics beacons.
+ * page legitimately talks to: the same-origin API route (form submit)
+ * and Vercel's analytics beacons.
  */
 const csp = [
   "default-src 'self'",
@@ -25,7 +21,7 @@ const csp = [
   // 'unsafe-eval' only in dev — React uses eval for debugging in development and
   // never in production, so the deployed CSP stays strict.
   `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV !== 'production' ? "'unsafe-eval'" : ''} https://va.vercel-scripts.com`.replace(/\s+/g, ' '),
-  `connect-src 'self' https://va.vercel-scripts.com ${supabaseHost}`.trim(),
+  "connect-src 'self' https://va.vercel-scripts.com",
   'upgrade-insecure-requests',
 ].join('; ');
 
