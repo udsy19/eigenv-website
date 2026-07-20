@@ -49,4 +49,4 @@ export function isCompanyEmail(email: string): boolean {
 }
 
 export const COMPANY_EMAIL_MESSAGE =
-  'Please use your company email — personal addresses (Gmail, Outlook, iCloud…) are not accepted.';
+  'Please use your company email. Personal addresses (Gmail, Outlook, iCloud…) are not accepted.';
