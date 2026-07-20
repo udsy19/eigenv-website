@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { COMPANY_EMAIL_MESSAGE, isCompanyEmail } from '@/lib/company-email';
-import { enquiryConfirmationEmail } from '@/lib/enquiry-email';
+import { enquiryConfirmationEmail, enquiryNotificationEmail } from '@/lib/enquiry-email';
 import { createEnquiryPage, uploadPdfToNotion, type EnquiryRecord } from '@/lib/notion';
 
 export const runtime = 'nodejs';
@@ -104,25 +104,21 @@ export async function POST(request: Request) {
       emailed = !sent.error;
       if (sent.error) console.error('[enquiry] resend error', sent.error);
 
-      // optional internal notification
+      // optional internal notification — branded, same as everything else
       const alertTo = process.env.ALERT_TO;
       if (alertTo) {
+        const note = enquiryNotificationEmail({
+          ...record,
+          attachmentName: pdf?.name ?? null,
+          storedInNotion: stored,
+        });
         await resend.emails.send({
           from,
           to: alertTo,
           replyTo: email,
-          subject: `New enquiry — ${name}`,
-          text: [
-            `Name: ${record.name}`,
-            `Email: ${record.email}`,
-            `Role: ${record.role ?? '—'}`,
-            `Company: ${record.company ?? '—'}`,
-            `Timing: ${record.timing}`,
-            `Looking to: ${record.lookingTo.join(', ') || '—'}`,
-            `Link: ${record.link ?? '—'}`,
-            `Attachment: ${pdf ? pdf.name : 'none'}`,
-            `Stored in Notion: ${stored ? 'yes' : 'no'}`,
-          ].join('\n'),
+          subject: note.subject,
+          html: note.html,
+          text: note.text,
         });
       }
     } catch (error) {
