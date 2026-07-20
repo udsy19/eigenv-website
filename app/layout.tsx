@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Instrument_Serif, Geist_Mono, Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CONTACT_EMAIL } from '@/content';
 import './globals.css';
 
@@ -82,6 +84,10 @@ export default function RootLayout({
           // content is a local constant, not user input
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANISATION) }}
         />
+        {/* Vercel Web Analytics (traffic) and Speed Insights (field vitals).
+            Both no-op unless the project is deployed on Vercel. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

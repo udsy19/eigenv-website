@@ -242,7 +242,7 @@ export default function Home() {
         >
           <h2 id="plate-05" className={`display ${styles.quiet}`}>
             Good companies rarely lack ambition.{' '}
-            <span className={styles.accent}>They lack senior hands.</span>
+            <span className={styles.accent}>They lack time.</span>
           </h2>
         </Poster>
 

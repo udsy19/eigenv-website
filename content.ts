@@ -83,5 +83,5 @@ export const LOOKING_TO = [
   { value: 'consulting', label: 'Consulting' },
 ];
 
-export const CONTACT_EMAIL = 'hello@eigenv.ai';
+export const CONTACT_EMAIL = 'ada@eigenv.ai';
 export const LOCATION = 'San Francisco, California';

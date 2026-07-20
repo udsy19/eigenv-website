@@ -148,3 +148,29 @@
   accent-color: var(--figure);
   cursor: pointer;
 }
+
+/* file input — tame the default browser button toward the sheet's language */
+.field input[type='file'] {
+  border-bottom: 1px solid currentColor;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.field input[type='file']::file-selector-button {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--figure);
+  background: transparent;
+  border: 1px solid currentColor;
+  padding: 0.35rem 0.7rem;
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+
+.submit[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}

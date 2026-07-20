@@ -61,3 +61,40 @@ one `<Poster>` block and nothing else.
 The operating work is live; no acquisitions have closed yet. Copy and metadata
 are written to say so — if you edit the description or the footer tagline, keep
 that true.
+
+## Deploy (Vercel)
+
+The project is a stock Next.js app; import the repo at vercel.com and it builds
+with no configuration. Two Vercel features are already wired in `app/layout.tsx`
+and activate automatically on deploy:
+
+- **Web Analytics** (traffic) — enable under the project's Analytics tab.
+- **Speed Insights** (field Core Web Vitals) — enable under Speed Insights.
+
+Set the domain in three places if it is not `eigenv.ai`: `metadataBase` and the
+JSON-LD in `app/layout.tsx`, `app/robots.ts`, and `app/sitemap.ts`.
+
+## Backend (Supabase) — optional
+
+Without it, the contact form composes a `mailto`. With it, enquiries and any PDF
+are written straight to your database the moment they submit, and the team gets
+an email alert.
+
+1. Create a project at supabase.com.
+2. Run `supabase/migrations/0001_enquiries.sql` (SQL editor, or `supabase db push`).
+   It creates the `enquiries` table and a private `enquiry-attachments` bucket,
+   both locked down with RLS — the public anon key can only insert and upload,
+   never read.
+3. In Vercel, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   (Project settings → API). These are public by design.
+4. Email alerts — deploy the edge function and wire a webhook:
+   - `supabase functions deploy notify-enquiry --no-verify-jwt`
+   - set its secrets: `RESEND_API_KEY`, `ALERT_TO=ada@eigenv.ai`, `ALERT_FROM`
+     (a verified sender), `WEBHOOK_SECRET`
+   - Database → Webhooks → new webhook on `enquiries` insert → POST to the
+     function URL, adding header `x-webhook-secret: <WEBHOOK_SECRET>`
+
+**Does Supabase send the alert?** Yes — a Database Webhook fires on each insert
+and calls the edge function, which emails the enquiry (with a link to the PDF)
+via Resend. Supabase does not send email itself; the function does, through a
+mail provider.
