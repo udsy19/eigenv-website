@@ -83,6 +83,7 @@ export default function Footer() {
         {/* Hardcoded: this route is statically prerendered, so a computed year
             would freeze at build time and silently go stale. */}
         <span>© 2026 EIGENV</span>
+        <span className={styles.privacy}>Cookieless visit analytics — no tracking cookies, no cross-site profiling.</span>
       </div>
     </footer>
   );

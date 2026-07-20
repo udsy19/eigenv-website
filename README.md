@@ -103,3 +103,21 @@ confirmation email will reach visitors.
 **Company-email gate**: the form rejects free/personal mailbox providers
 (Gmail, Outlook, iCloud, …) both client-side and in the API route. The list is
 `lib/company-email.ts`.
+
+## Visit analytics (cookieless)
+
+A beacon (`components/Track.tsx`) fires once per page load to `app/api/track`,
+which records the visit in a Notion "Visitors" database. It is **cookieless**:
+no persistent identifier, no fingerprint, no cross-site or credit enrichment,
+and the raw IP is never stored. Disclosed in the footer.
+
+Captured per visit: path, referrer, campaign (UTM), coarse geo (country /
+region / city, from Vercel edge headers), device, browser, OS, language, screen
+size, timezone — and, if `IPINFO_TOKEN` is set, the visitor's **company**
+(org-level, for B2B).
+
+Setup: set `NOTION_VISITORS_DATABASE_ID` (the database was created by the same
+integration). Geo is blank in local dev and populates on Vercel. Note Notion's
+API is rate-limited (~3 req/s) — fine for a low-traffic site; for real volume,
+write visits to Postgres and sync to Notion, or use a purpose-built analytics
+tool. It is best-effort and never blocks or affects the page.

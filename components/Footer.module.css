@@ -113,3 +113,9 @@
     grid-template-columns: 1fr;
   }
 }
+
+.privacy {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  opacity: 0.8;
+}
